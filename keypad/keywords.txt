@@ -1,0 +1,15 @@
+###############################Syntax Coloring Map for Keypad.h###############################
+#Datatypes(KEYWORD1)
+Key	KEYWORD1
+KEYPAD	KEYWORD1
+
+#Methods(KEYWORD2)
+init	KEYWORD2
+scanKeys	KEYWORD2
+keyAt	KEYWORD2
+columSize	KEYWORD2
+rowSize	KEYWORD2
+keySize	KEYWORD2
+exportTo	KEYWORD2
+detach	KEYWORD2
+loadString	KEYWORD2
