@@ -16,4 +16,4 @@ C:\Users\qinbi\AppData\Local\Temp\VMBuilds\keypad\micro\Debug\keypad.cpp.o: \
  d:\programs\arduino\hardware\arduino\avr\variants\leonardo\pins_arduino.h \
  C:\Users\qinbi\AppData\Local\Temp\VMBuilds\keypad\micro\Debug\KeyPad.h \
  D:\Programs\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\professional\common7\ide\extensions\vaclbusj.ce3\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\professional\common7\ide\extensions\ru3henro.cop\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h

@@ -1,6 +1,6 @@
 C:\Users\qinbi\AppData\Local\Temp\VMBuilds\keypad\micro\Debug\VM_DBG\VM_DBG.cpp.o: \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\professional\common7\ide\extensions\vaclbusj.ce3\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.cpp \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\professional\common7\ide\extensions\vaclbusj.ce3\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.h \
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\professional\common7\ide\extensions\ru3henro.cop\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.cpp \
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\professional\common7\ide\extensions\ru3henro.cop\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.h \
  D:\Programs\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  D:\Programs\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
  D:\Programs\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \

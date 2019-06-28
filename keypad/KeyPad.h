@@ -48,44 +48,86 @@ typedef struct __Key__{
 	}
 }Key;
 
+enum ReadSequence:bool {
+	ByRows = false,
+	ByColums
+};
+
 template<byte R, byte C>
 class KEYPAD {
 private:
 	unsigned long refreshInterval;
 	unsigned long currentTime;
 	Key rawKeyStatus[R][C];
+	ReadSequence sequence;
 
 public:
 	const byte(&rowPins)[R];
 	const byte(&columPins)[C];
 
-	//KEYPAD() = default;
-
-	KEYPAD(const byte(&rowpin)[R], const byte(&colpin)[C], unsigned long refresh = 10UL):rowPins(rowpin),columPins(colpin) {
+	KEYPAD(const byte(&rowpin)[R], const byte(&colpin)[C], unsigned long refresh = 10UL, ReadSequence readSequence = ByRows) :rowPins(rowpin), columPins(colpin) {
 		this->refreshInterval = refresh;
 		this->currentTime = 0UL;
+		this->sequence = readSequence;
+		for (byte j = 0U; j < R; j++) {
+			for (byte i = 0U; i < C; i++) {
+				this->rawKeyStatus[j][i].pressed = false;
+				this->rawKeyStatus[j][i].changed = false;
+			}
+		}
+	}
+
+	void setSequence(ReadSequence seq) {
+		for (byte j = 0U; j < this->getReaderSize(); j++) {
+			pinMode(this->getReaderPinAt(j), INPUT);
+		}
+		for (byte j = 0U; j < this->getOutputSize(); j++) {
+			digitalWrite(this->getOutputPinAt(j), LOW);
+			pinMode(this->getOutputPinAt(j), INPUT);
+		}
+		for (byte j = 0U; j < R; j++) {
+			for (byte i = 0U; i < C; i++) {
+				this->rawKeyStatus[j][i].pressed = false;
+				this->rawKeyStatus[j][i].changed = false;
+			}
+		}
+		this->sequence = seq;
+		this->init();
+	}
+
+	ReadSequence getReadSequence() const {
+		return this->sequence;
+	}
+
+	const byte getReaderPinAt(byte index) const {
+		return (this->sequence) ? (this->columPins[index]) : (this->rowPins[index]);
+	}
+
+	const byte getOutputPinAt(byte index) const {
+		return (!this->sequence) ? (this->columPins[index]) : (this->rowPins[index]);
 	}
 
 	void init() {
-		for (byte j = 0U; j < R; j++) {
-			pinMode(this->rowPins[j], OUTPUT);
+		for (byte j = 0U; j < this->getOutputSize(); j++) {
+			pinMode(this->getOutputPinAt(j), OUTPUT);
+			digitalWrite(this->getOutputPinAt(j), HIGH);
 		}
-		for (byte j = 0U; j < C; j++) {
-			pinMode(this->columPins[j], INPUT_PULLUP);
+		for (byte j = 0U; j < this->getReaderSize(); j++) {
+			pinMode(this->getReaderPinAt(j), INPUT_PULLUP);
 		}
-		for (byte j = 0U; j < R; j++) {
-			digitalWrite(this->rowPins[j], LOW);
-			for (byte i = 0U; i < C; i++) {
-				bool currentStatus = !digitalRead(this->columPins[i]);
-				if (currentStatus != this->rawKeyStatus[j][i].pressed) {
-					this->rawKeyStatus[j][i].pressed = currentStatus;
-					this->rawKeyStatus[j][i].changed = true;
+		for (byte j = 0U; j < this->getOutputSize(); j++) {
+			digitalWrite(this->getOutputPinAt(j), LOW);
+			for (byte i = 0U; i < this->getReaderSize(); i++) {
+				bool currentStatus = !digitalRead(this->getReaderPinAt(i));
+				if (currentStatus != this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].pressed) {
+					this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].pressed = currentStatus;
+					this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].changed = true;
 				}
 				else {
-					this->rawKeyStatus[j][i].changed = false;
+					this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].changed = false;
 				}
 			}
-			digitalWrite(this->rowPins[j], HIGH);
+			digitalWrite(this->getOutputPinAt(j), HIGH);
 		}
 		this->currentTime = millis();
 	}
@@ -94,19 +136,19 @@ public:
 		if (millis() - (this->currentTime) < (this->refreshInterval)) {
 			return;
 		}
-		for (byte j = 0U; j < R; j++) {
-			digitalWrite(this->rowPins[j], LOW);
-			for (byte i = 0U; i < C; i++) {
-				bool currentStatus = !digitalRead(this->columPins[i]);
-				if (currentStatus != this->rawKeyStatus[j][i].pressed) {
-					this->rawKeyStatus[j][i].pressed = currentStatus;
-					this->rawKeyStatus[j][i].changed = true;
+		for (byte j = 0U; j < this->getOutputSize(); j++) {
+			digitalWrite(this->getOutputPinAt(j), LOW);
+			for (byte i = 0U; i < this->getReaderSize(); i++) {
+				bool currentStatus = !digitalRead(this->getReaderPinAt(i));
+				if (currentStatus != this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].pressed) {
+					this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].pressed = currentStatus;
+					this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].changed = true;
 				}
 				else {
-					this->rawKeyStatus[j][i].changed = false;
+					this->rawKeyStatus[(this->sequence) ? j : i][(this->sequence) ? i : j].changed = false;
 				}
 			}
-			digitalWrite(this->rowPins[j], HIGH);
+			digitalWrite(this->getOutputPinAt(j), HIGH);
 		}
 		this->currentTime = millis();
 	}
@@ -123,8 +165,16 @@ public:
 		return C;
 	}
 
+	byte getReaderSize() const {
+		return (this->sequence) ? (C) : (R);
+	}
+
 	constexpr byte rowSize() const {
 		return R;
+	}
+
+	byte getOutputSize() const {
+		return (!this->sequence) ? (C) : (R);
 	}
 
 	constexpr uint16_t keySize() const {
@@ -142,11 +192,12 @@ public:
 	void detach() {
 		this->currentTime = 0UL;
 		this->refreshInterval = 0UL;
-		for (byte j = 0U; j < C; j++) {
-			pinMode(this->columPins[j], OUTPUT);
+		for (byte j = 0U; j < this->getReaderSize(); j++) {
+			pinMode(this->getReaderPinAt(j), INPUT);
 		}
-		for (byte j = 0U; j < R; j++) {
-			digitalWrite(this->rowPins[j], LOW);
+		for (byte j = 0U; j < this->getOutputSize(); j++) {
+			digitalWrite(this->getOutputPinAt(j), LOW);
+			pinMode(this->getOutputPinAt(j), INPUT);
 		}
 		for (byte j = 0U; j < R; j++) {
 			for (byte i = 0U; i < C; i++) {

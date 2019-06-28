@@ -5,9 +5,9 @@
 */
 #include "KeyPad.h"
 
-static constexpr byte rowPins[4U] = { 7U,8U,9U,10U };
-static constexpr byte columPins[4U] = { 3U,4U,5U,6U };
-KEYPAD<4U, 4U> keyPad(rowPins, columPins);
+static constexpr byte rowPins[12] = { 13,12,11,10,9,8,7,6,5,4,3,2 };
+static constexpr byte columPins[6] = { A0,A1,A2,A3,A4,A5 };
+KEYPAD<6,12> keyPad(columPins, rowPins);
 
 // the setup function runs once when you press reset or power the board
 void setup() {
